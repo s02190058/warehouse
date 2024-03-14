@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/s02190058/warehouse/internal/config"
 	"log"
+
+	"github.com/s02190058/warehouse/internal/config"
 )
 
 var configPath = flag.String("config", "./configs/local.yml", "path to config file")
