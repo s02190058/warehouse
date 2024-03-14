@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 
+	"github.com/s02190058/warehouse/internal/app"
 	"github.com/s02190058/warehouse/internal/config"
 )
 
@@ -17,5 +18,5 @@ func main() {
 		log.Fatalf("unable to read config: %v", err)
 	}
 
-	_ = cfg
+	app.Run(cfg)
 }
