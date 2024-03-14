@@ -4,16 +4,11 @@ export
 
 PROJECT_DIR = $(shell pwd)
 
+# tools
+
 TOOLS_DIR = $(PROJECT_DIR)/tools
 TOOLS_BIN_DIR = $(TOOLS_DIR)/bin
 $(shell [ -f $(TOOLS_BIN_DIR) ] || mkdir -p $(TOOLS_BIN_DIR))
-
-GO ?= go
-
-.PHONY: run-app
-
-run-app:
-	$(GO) run ./cmd/app
 
 GO_LINT_TOOL = $(TOOLS_BIN_DIR)/golangci-lint
 
@@ -26,13 +21,29 @@ GO_LINT_TOOL = $(TOOLS_BIN_DIR)/golangci-lint
 lint: .install-golangci-lint
 	$(GO_LINT_TOOL) run ./... --fix --config=./.golangci.yml
 
+# local build
+
+GO ?= go
+
 GO_BUILD_PATH = $(PROJECT_DIR)/bin
-GO_BUILD_APP_PATH = $(GO_BUILD_PATH)/app
+GO_BUILD_WAREHOUSE_PATH = $(GO_BUILD_PATH)/warehouse
 
 .PHONY: build
 build:
-	$(GO) build -o $(GO_BUILD_APP_PATH) ./cmd/app
+	$(GO) build -o $(GO_BUILD_WAREHOUSE_PATH) ./cmd/warehouse
 
 .PHONY: run
 run:
-	$(GO) run ./cmd/app
+	$(GO) run ./cmd/warehouse
+
+# docker build
+
+DOCKER ?= docker
+
+.PHONY: up
+up:
+	$(DOCKER) compose up -d --build
+
+.PHONY: down
+down:
+	$(DOCKER) compose down

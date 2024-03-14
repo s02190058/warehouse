@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  warehouse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: warehouse
+    ports:
+      - "8080:8080"
+    networks:
+      - warehouse-net
+    restart: always
+
+networks:
+  warehouse-net:
+    driver: "bridge"
