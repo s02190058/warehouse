@@ -1,0 +1,32 @@
+basePath: /
+definitions:
+  response.Response:
+    properties:
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+info:
+  contact:
+    email: sklirian@mail.ru
+    name: Bakanov Artem
+    url: https://t.me/s02190058
+  description: Warehouse management platform.
+  title: warehouse App
+  version: 0.1.o
+paths:
+  /ping:
+    get:
+      description: Shows that service is available.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: OK status
+      tags:
+      - healthcheck
+swagger: "2.0"

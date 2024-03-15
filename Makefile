@@ -21,6 +21,18 @@ GO_LINT_TOOL = $(TOOLS_BIN_DIR)/golangci-lint
 lint: .install-golangci-lint
 	$(GO_LINT_TOOL) run ./... --fix --config=./.golangci.yml
 
+GO_SWAG_TOOL = $(TOOLS_BIN_DIR)/swag
+
+.PHONY: .install-swag
+.install-swag:
+	@[ -f $(GO_SWAG_TOOL) ] \
+	|| GOBIN=$(TOOLS_BIN_DIR) go install github.com/swaggo/swag/cmd/swag@v$(SWAG_VERSION)
+
+.PHONY: swag
+swag: .install-swag
+	$(GO_SWAG_TOOL) fmt \
+	&& $(GO_SWAG_TOOL) init -g ./internal/transport/http/router.go
+
 # local build
 
 GO ?= go
