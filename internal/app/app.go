@@ -9,6 +9,7 @@ import (
 
 	"github.com/s02190058/warehouse/internal/config"
 	"github.com/s02190058/warehouse/internal/transport/http"
+	"github.com/s02190058/warehouse/pkg/db/postgres"
 	httpserver "github.com/s02190058/warehouse/pkg/http/server"
 	"github.com/s02190058/warehouse/pkg/slogger"
 )
@@ -18,6 +19,22 @@ func Run(cfg *config.Config) {
 	if err != nil {
 		log.Fatalf("cannot get logger: %v", err)
 	}
+
+	db, err := postgres.New(logger, postgres.Config{
+		Host:     cfg.Postgres.Host,
+		Port:     cfg.Postgres.Port,
+		User:     cfg.Postgres.User,
+		Password: cfg.Postgres.Password,
+		DB:       cfg.Postgres.DB,
+	})
+	if err != nil {
+		logger.Error("cannot establish connection to postgresql server", slogger.Err(err))
+		return
+	}
+
+	logger.Info("established connection to postgresql server")
+
+	_ = db
 
 	router := http.NewRouter()
 

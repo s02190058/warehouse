@@ -5,9 +5,27 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: warehouse
     container_name: warehouse
     ports:
       - "8080:8080"
+    networks:
+      - warehouse-net
+    restart: always
+    depends_on:
+      - postgres
+
+  postgres:
+    container_name: postgres
+    image: postgres:16
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5436:5432"
     networks:
       - warehouse-net
     restart: always
@@ -15,3 +33,6 @@ services:
 networks:
   warehouse-net:
     driver: "bridge"
+
+volumes:
+  pg-data:
