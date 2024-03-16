@@ -1,6 +1,8 @@
-include MANIFEST
+include .env.local
 
 export
+
+include MANIFEST
 
 PROJECT_DIR = $(shell pwd)
 
@@ -33,6 +35,23 @@ swag: .install-swag
 	$(GO_SWAG_TOOL) fmt \
 	&& $(GO_SWAG_TOOL) init -g ./internal/transport/http/router.go
 
+GO_MIGRATE_TOOL = $(TOOLS_BIN_DIR)/migrate
+
+.PHONY: install-migrate
+install-migrate:
+	@[ -f $(GO_MIGRATE_TOOL) ] \
+	|| GOBIN=$(TOOLS_BIN_DIR) go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@v$(MIGRATE_VERSION)
+
+POSTGRES_URL='postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@$(POSTGRES_HOST):$(POSTGRES_PORT)/$(POSTGRES_DB)?sslmode=disable'
+
+.PHONY: migrate-up
+migrate-up:
+	$(GO_MIGRATE_TOOL) -database $(POSTGRES_URL) -path migrations up
+
+.PHONY: migrate-down
+migrate-down:
+	$(GO_MIGRATE_TOOL) -database $(POSTGRES_URL) -path migrations down
+
 # local build
 
 GO ?= go
@@ -42,11 +61,11 @@ GO_BUILD_WAREHOUSE_PATH = $(GO_BUILD_PATH)/warehouse
 
 .PHONY: build
 build:
-	$(GO) build -o $(GO_BUILD_WAREHOUSE_PATH) ./cmd/warehouse
+	CGO_ENABLED=0 $(GO) build -o $(GO_BUILD_WAREHOUSE_PATH) ./cmd/warehouse
 
 .PHONY: run
 run:
-	$(GO) run ./cmd/warehouse
+	CGO_ENABLED=0 $(GO) run ./cmd/warehouse
 
 # docker build
 
@@ -59,3 +78,7 @@ up:
 .PHONY: down
 down:
 	$(DOCKER) compose down
+
+.PHONY: rm-pg-data
+rm-pg-data:
+	$(DOCKER) volume rm warehouse_pg-data
