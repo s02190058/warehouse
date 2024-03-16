@@ -29,6 +29,7 @@ func Run(cfg *config.Config) {
 	})
 	if err != nil {
 		logger.Error("cannot establish connection to postgresql server", slogger.Err(err))
+
 		return
 	}
 

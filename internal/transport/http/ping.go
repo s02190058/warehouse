@@ -13,7 +13,9 @@ import (
 //	@Tags			healthcheck
 //	@Produce		json
 //	@Success		200	{object}	response.Response
-//	@Router			/ping [get].
+//	@Router			/ping [get]
+//
+// ping shows that service is available.
 func ping(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, response.OK())
 }
