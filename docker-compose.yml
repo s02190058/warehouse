@@ -13,7 +13,7 @@ services:
       - warehouse-net
     restart: always
     depends_on:
-      - postgres
+      - migrate
 
   postgres:
     container_name: postgres
@@ -29,6 +29,27 @@ services:
     networks:
       - warehouse-net
     restart: always
+    healthcheck:
+      test: "pg_isready -U postgres -d postgres"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    container_name: migrate
+    image: migrate/migrate:v4.17.0
+    volumes:
+      - ./migrations:/migrations
+    networks:
+      - warehouse-net
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable",
+      "up"
+    ]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   warehouse-net:
@@ -36,3 +57,4 @@ networks:
 
 volumes:
   pg-data:
+  migrations:
