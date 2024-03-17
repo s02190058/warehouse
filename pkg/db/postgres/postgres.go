@@ -20,7 +20,11 @@ type Options struct {
 	maxConns     int32
 }
 
-func New(logger *slog.Logger, cfg Config, opts ...Option) (*pgxpool.Pool, error) {
+type Database struct {
+	Pool *pgxpool.Pool
+}
+
+func New(logger *slog.Logger, cfg Config, opts ...Option) (*Database, error) {
 	o := newDefaultOptions()
 	for _, opt := range opts {
 		opt(o)
@@ -64,7 +68,9 @@ func New(logger *slog.Logger, cfg Config, opts ...Option) (*pgxpool.Pool, error)
 		return nil, err
 	}
 
-	return pool, nil
+	return &Database{
+		Pool: pool,
+	}, nil
 }
 
 func newDefaultOptions() *Options {
