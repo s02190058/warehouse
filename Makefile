@@ -1,8 +1,8 @@
 include .env.local
 
-export
-
 include MANIFEST
+
+export
 
 PROJECT_DIR = $(shell pwd)
 

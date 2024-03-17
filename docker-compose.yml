@@ -37,7 +37,7 @@ services:
 
   migrate:
     container_name: migrate
-    image: migrate/migrate:v4.17.0
+    image: migrate/migrate:v${MIGRATE_VERSION}
     volumes:
       - ./migrations:/migrations
     networks:
