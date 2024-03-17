@@ -1,0 +1,8 @@
+# IDE
+.idea/
+
+# binary tools
+tools/bin/
+
+# binaries
+bin/

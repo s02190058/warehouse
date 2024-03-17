@@ -1,0 +1,60 @@
+version: "3.8"
+
+services:
+  warehouse:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: warehouse
+    container_name: warehouse
+    ports:
+      - "8080:8080"
+    networks:
+      - warehouse-net
+    restart: always
+    depends_on:
+      - migrate
+
+  postgres:
+    container_name: postgres
+    image: postgres:16
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5436:5432"
+    networks:
+      - warehouse-net
+    restart: always
+    healthcheck:
+      test: "pg_isready -U postgres -d postgres"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  migrate:
+    container_name: migrate
+    image: migrate/migrate:v${MIGRATE_VERSION}
+    volumes:
+      - ./migrations:/migrations
+    networks:
+      - warehouse-net
+    command: [
+      "-path", "/migrations",
+      "-database", "postgres://postgres:postgres@postgres:5432/postgres?sslmode=disable",
+      "up"
+    ]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+networks:
+  warehouse-net:
+    driver: "bridge"
+
+volumes:
+  pg-data:
+  migrations:
