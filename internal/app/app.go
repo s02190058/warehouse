@@ -34,6 +34,7 @@ func Run(cfg *config.Config) {
 
 		return
 	}
+	defer db.Close()
 
 	logger.Info("established connection to postgresql server")
 

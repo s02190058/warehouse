@@ -73,6 +73,10 @@ func New(logger *slog.Logger, cfg Config, opts ...Option) (*Database, error) {
 	}, nil
 }
 
+func (db *Database) Close() {
+	db.Pool.Close()
+}
+
 func newDefaultOptions() *Options {
 	return &Options{
 		connAttempts: _defaultConnAttempts,
