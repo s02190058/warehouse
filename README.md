@@ -1,6 +1,7 @@
 # warehouse
 
-Описание API находится по пути `/swagger/`
+- Описание API находится по адресу `http://localhost:8080/swagger/`
+- Коллекция `Postman` лежит в директории `postman`
 
 ## Запуск сервиса
 
