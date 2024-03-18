@@ -75,7 +75,7 @@ func (s *Storage) Remains(ctx context.Context, id int) ([]entity.ProductRemains,
 	}
 	defer rows.Close()
 
-	var remains []entity.ProductRemains
+	remains := []entity.ProductRemains{}
 	for rows.Next() {
 		var remain entity.ProductRemains
 		if err = rows.Scan(&remain.Code, &remain.Remains); err != nil {
@@ -114,7 +114,7 @@ func (s *Storage) Reserve(ctx context.Context, id int, productCodes []string) ([
 	}
 	defer rows.Close()
 
-	var reservedCodes []string
+	reservedCodes := []string{}
 	for rows.Next() {
 		var code string
 		if err = rows.Scan(&code); err != nil {
@@ -159,7 +159,7 @@ func (s *Storage) Release(ctx context.Context, id int, productCodes []string) ([
 	}
 	defer rows.Close()
 
-	var reservedCodes []string
+	reservedCodes := []string{}
 	for rows.Next() {
 		var code string
 		if err = rows.Scan(&code); err != nil {
