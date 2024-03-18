@@ -7,6 +7,13 @@ definitions:
       status:
         type: string
     type: object
+  warehouse.ProductRemains:
+    properties:
+      code:
+        type: string
+      remains:
+        type: integer
+    type: object
 info:
   contact:
     email: sklirian@mail.ru
@@ -16,6 +23,89 @@ info:
   title: warehouse App
   version: 0.1.o
 paths:
+  /api/v1/warehouses/{id}:
+    get:
+      description: Number of remaining products.
+      parameters:
+      - description: warehouse id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/warehouse.ProductRemains'
+            type: array
+      summary: OK status
+      tags:
+      - warehouse
+  /api/v1/warehouses/{id}:release:
+    post:
+      consumes:
+      - application/json
+      description: Release products with the specified codes.
+      parameters:
+      - description: warehouse id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: "product\tcodes\tto\tbe\treleased"
+        in: body
+        name: releasedCodes
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: OK status
+      tags:
+      - warehouse
+  /api/v1/warehouses/{id}:reserve:
+    post:
+      consumes:
+      - application/json
+      description: Reserves products with the specified codes.
+      parameters:
+      - description: warehouse id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: "product\tcodes\tto\tbe\treserved"
+        in: body
+        name: reservedCodes
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: OK status
+      tags:
+      - warehouse
   /ping:
     get:
       description: Shows that service is available.

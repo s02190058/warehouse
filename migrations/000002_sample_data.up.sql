@@ -15,4 +15,7 @@ VALUES (1, 1, 4),
        (2, 2, 5),
        (3, 1, 10);
 
+UPDATE products AS p
+SET quantity = (SELECT sum(quantity) FROM warehouse_products AS wp WHERE wp.product_id = p.id);
+
 COMMIT;

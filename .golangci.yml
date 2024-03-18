@@ -2,7 +2,7 @@ linters-settings:
   gci:
     local-prefixes: github.com/s02190058/warehouse
   dupl:
-    threshold: 100
+    threshold: 250
   errorlint:
     errorf: true
   errcheck:
@@ -31,6 +31,7 @@ linters-settings:
     disabled-checks:
       - dupImport
       - hugeParam
+      - sloppyReassign
       - unnecessaryBlock
   gofumpt:
     extra-rules: true

@@ -3,6 +3,7 @@ module github.com/s02190058/warehouse
 go 1.22.1
 
 require (
+	github.com/cristalhq/builq v0.13.0
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/render v1.0.3
 	github.com/ilyakaznacheev/cleanenv v1.5.0

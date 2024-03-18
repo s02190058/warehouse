@@ -8,6 +8,8 @@ import (
 	"syscall"
 
 	"github.com/s02190058/warehouse/internal/config"
+	warehouseservice "github.com/s02190058/warehouse/internal/service/warehouse"
+	warehousestorage "github.com/s02190058/warehouse/internal/storage/warehouse"
 	"github.com/s02190058/warehouse/internal/transport/http"
 	"github.com/s02190058/warehouse/pkg/db/postgres"
 	httpserver "github.com/s02190058/warehouse/pkg/http/server"
@@ -35,9 +37,11 @@ func Run(cfg *config.Config) {
 
 	logger.Info("established connection to postgresql server")
 
-	_ = db
+	warehouseStorage := warehousestorage.New(db)
 
-	router := http.NewRouter()
+	warehouseService := warehouseservice.New(warehouseStorage, db)
+
+	router := http.NewRouter(logger, warehouseService)
 
 	port := cfg.HTTP.Port
 	server := httpserver.New(router, port)
