@@ -46,11 +46,7 @@ func (s *Service) Remains(ctx context.Context, id int) (productsQuantity []entit
 }
 
 func (s *Service) Reserve(ctx context.Context, id int, productCodes []string) ([]string, error) {
-	if len(productCodes) == 0 {
-		return []string{}, nil
-	}
-
-	var reservedCodes []string
+	reservedCodes := []string{}
 	err := s.transactor.InTx(ctx, func(ctx context.Context) error {
 		wh, err := s.storage.Get(ctx, id)
 		if err != nil {
@@ -59,6 +55,10 @@ func (s *Service) Reserve(ctx context.Context, id int, productCodes []string) ([
 
 		if !wh.IsAvailable {
 			return ErrWarehouseNotAvailable
+		}
+
+		if len(productCodes) == 0 {
+			return nil
 		}
 
 		reservedCodes, err = s.storage.Reserve(ctx, id, productCodes)
@@ -70,11 +70,7 @@ func (s *Service) Reserve(ctx context.Context, id int, productCodes []string) ([
 }
 
 func (s *Service) Release(ctx context.Context, id int, productCodes []string) ([]string, error) {
-	if len(productCodes) == 0 {
-		return []string{}, nil
-	}
-
-	var reservedCodes []string
+	releasedCodes := []string{}
 	err := s.transactor.InTx(ctx, func(ctx context.Context) error {
 		wh, err := s.storage.Get(ctx, id)
 		if err != nil {
@@ -85,10 +81,14 @@ func (s *Service) Release(ctx context.Context, id int, productCodes []string) ([
 			return ErrWarehouseNotAvailable
 		}
 
-		reservedCodes, err = s.storage.Release(ctx, id, productCodes)
+		if len(productCodes) == 0 {
+			return nil
+		}
+
+		releasedCodes, err = s.storage.Release(ctx, id, productCodes)
 
 		return err
 	})
 
-	return reservedCodes, err
+	return releasedCodes, err
 }
