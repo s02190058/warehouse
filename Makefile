@@ -52,17 +52,6 @@ migrate-up:
 migrate-down:
 	$(GO_MIGRATE_TOOL) -database $(POSTGRES_URL) -path migrations down
 
-GO_STATICCHECK_TOOL = $(TOOLS_BIN_DIR)/staticcheck
-
-.PHONY: .install-staticcheck
-.install-staticcheck:
-	@[ -f $(GO_STATICCHECK_TOOL) ] \
-	|| GOBIN=$(TOOLS_BIN_DIR) go install honnef.co/go/tools/cmd/staticcheck@v$(STATICCHECK_VERSION)
-
-.PHONY: staticcheck
-staticcheck: .install-staticcheck
-	$(GO_STATICCHECK_TOOL) ./...
-
 # local build
 
 GO ?= go
