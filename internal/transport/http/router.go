@@ -1,12 +1,16 @@
 package http
 
 import (
+	"log/slog"
+
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	// register swagger docs.
 	_ "github.com/s02190058/warehouse/docs"
+	v1 "github.com/s02190058/warehouse/internal/transport/http/v1"
+	"github.com/s02190058/warehouse/internal/transport/http/v1/warehouse"
 )
 
 //	@title			warehouse App
@@ -19,7 +23,10 @@ import (
 
 // @BasePath	/
 
-func NewRouter() chi.Router {
+func NewRouter(
+	logger *slog.Logger,
+	warehouseService warehouse.Service,
+) chi.Router {
 	router := chi.NewRouter()
 
 	router.Use(
@@ -31,6 +38,12 @@ func NewRouter() chi.Router {
 	router.Get("/swagger/*", httpSwagger.Handler())
 
 	router.Get("/ping", ping)
+
+	api := chi.NewRouter()
+
+	api.Mount("/v1", v1.NewRouter(logger, warehouseService))
+
+	router.Mount("/api", api)
 
 	return router
 }
