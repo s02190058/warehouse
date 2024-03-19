@@ -13,6 +13,7 @@ import (
 
 	"github.com/docker/go-connections/nat"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	entity "github.com/s02190058/warehouse/internal/entity/warehouse"
 	service "github.com/s02190058/warehouse/internal/service/warehouse"
 	storage "github.com/s02190058/warehouse/internal/storage/warehouse"
 	"github.com/s02190058/warehouse/migrations"
@@ -29,7 +30,8 @@ const (
 	postgresPassword = "postgres"
 	postgresDB       = "postgres"
 
-	postgresContainerPort = "5432"
+	postgresContainerPort           = "5432"
+	postgresContainerStartupTimeout = 30 * time.Second
 
 	migrationStepWarehouse = 1
 )
@@ -67,7 +69,8 @@ func createPostgresTestContainer(t *testing.T, ctx context.Context) (testcontain
 		Env:          env,
 		ExposedPorts: []string{postgresContainerPort + "/tcp"},
 		WaitingFor: wait.ForSQL(postgresContainerPort, "pgx", dbURL).
-			WithStartupTimeout(10 * time.Second).WithQuery("SELECT 10"),
+			WithStartupTimeout(postgresContainerStartupTimeout).
+			WithQuery("SELECT 10"),
 	}
 
 	postgresC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
@@ -217,6 +220,101 @@ func (s *Suite) TestGet() {
 			require.Equal(t, tc.isAvailable, wh.IsAvailable)
 		})
 	}
+}
+
+func (s *Suite) TestRemains() {
+	t := s.T()
+
+	testCases := []struct {
+		name    string
+		id      int
+		remains []entity.ProductRemains
+	}{
+		{
+			name: "both products available",
+			id:   1,
+			remains: []entity.ProductRemains{
+				{
+					Code:    "AAA",
+					Remains: 4,
+				},
+				{
+					Code:    "BBB",
+					Remains: 3,
+				},
+			},
+		},
+		{
+			name: "first product available",
+			id:   3,
+			remains: []entity.ProductRemains{
+				{
+					Code:    "AAA",
+					Remains: 10,
+				},
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx := context.Background()
+
+			remains, err := s.storage.Remains(ctx, tc.id)
+			require.NoError(t, err)
+			require.Equal(t, tc.remains, remains)
+		})
+	}
+}
+
+func (s *Suite) TestReserveReleaseRemains() {
+	t := s.T()
+
+	ctx := context.Background()
+
+	for _ = range 3 {
+		_, err := s.storage.Reserve(ctx, 1, []string{"AAA", "BBB"})
+		require.NoError(t, err)
+	}
+
+	expectedRemains := []entity.ProductRemains{
+		{
+			Code:    "AAA",
+			Remains: 1,
+		},
+		{
+			Code:    "BBB",
+			Remains: 0,
+		},
+	}
+	remains, err := s.storage.Remains(ctx, 1)
+	require.NoError(t, err)
+	require.Equal(t, expectedRemains, remains)
+
+	_, err = s.storage.Reserve(ctx, 1, []string{"BBB"})
+	require.Equal(t, service.ErrProductIsFullyReserved, err)
+
+	for _ = range 3 {
+		_, err := s.storage.Release(ctx, 1, []string{"AAA", "BBB"})
+		require.NoError(t, err)
+	}
+
+	expectedRemains = []entity.ProductRemains{
+		{
+			Code:    "AAA",
+			Remains: 4,
+		},
+		{
+			Code:    "BBB",
+			Remains: 3,
+		},
+	}
+	remains, err = s.storage.Remains(ctx, 1)
+	require.NoError(t, err)
+	require.Equal(t, expectedRemains, remains)
+
+	_, err = s.storage.Release(ctx, 1, []string{"AAA"})
+	require.Equal(t, service.ErrProductHasNoReserves, err)
 }
 
 func TestSuite(t *testing.T) {
