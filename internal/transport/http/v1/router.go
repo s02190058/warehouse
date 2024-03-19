@@ -3,7 +3,7 @@ package v1
 import (
 	"log/slog"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 
 	"github.com/s02190058/warehouse/internal/transport/http/v1/warehouse"
 )

@@ -39,7 +39,7 @@ services:
     container_name: migrate
     image: migrate/migrate:v${MIGRATE_VERSION}
     volumes:
-      - ./migrations:/migrations
+      - ./migrations/warehouse:/migrations
     networks:
       - warehouse-net
     command: [
